@@ -1,0 +1,113 @@
+@startuml ChineseChessMVC_Optimized
+
+left to right direction
+
+package Model {
+    class Chessboard {
+        - board: Chess[9][10]
+        - currentPlayer: int
+        - moveHistory: List<ChessMove>
+        - redBoss: Chess
+        - blackBoss: Chess
+        + initChess()
+        + copy(): Chessboard
+        + isValidMove()
+        + applyMove()
+        + undoMove()
+    }
+
+    class Chess {
+        - name: String
+        - color: int
+        - p: Point
+        - initP: Point
+        + isValidMove()
+        + getImage(): Image
+    }
+
+    class ChessMove {
+        - chess: Chess
+        - from: Point
+        - to: Point
+        - captured: Chess
+    }
+
+    class ChessAI {
+        - aiColor: int
+        - maxDepth: int
+        + findBestMove(): ChessMove
+        + evaluateBoard(): int
+    }
+
+    class SavedGame {
+        - currentPlayer: int
+        - isAiEnabled: boolean
+        - chessList: List<Chess>
+        - moveHistory: List<ChessMove>
+    }
+}
+
+package View {
+    class GamePanel {
+        - chessboard: Chessboard
+        - highlightedPoint: Point
+        + drawBoard()
+        + drawPieces()
+        + highlightChess()
+    }
+
+    class ModeSelectionPanel {
+        - isAiEnabled: boolean
+        - isRedPlayer: boolean
+        + showDialog()
+    }
+
+    class MainFrame {
+        - gamePanel: GamePanel
+        - controller: GameController
+        + setupMenu()
+        + setupLayout()
+    }
+}
+
+package Controller {
+    class GameController {
+        - chessboard: Chessboard
+        - gamePanel: GamePanel
+        - AI: ChessAI
+        + handleClick()
+        + checkAITurn()
+        + saveChessGame()
+        + loadChessGame()
+    }
+}
+
+' 核心关系
+Chessboard "1" *-- "0..*" Chess : contains
+Chessboard "1" *-- "0..*" ChessMove : records
+Chessboard --> ChessAI : uses
+Chessboard --> SavedGame : persists
+
+GamePanel --> Chessboard : observes
+MainFrame *-- GamePanel
+MainFrame *-- GameController
+
+GameController --> Chessboard : modifies
+GameController --> GamePanel : updates
+GameController --> ModeSelectionPanel : listens
+GameController --> ChessAI : invokes
+
+ChessMove --> Chess
+SavedGame *-- Chess
+SavedGame *-- ChessMove
+
+
+
+hide circle
+skinparam {
+    classFontStyle Bold
+    classAttributeFontSize 12
+    defaultFontName Arial
+    arrowFontSize 10
+}
+@enduml
